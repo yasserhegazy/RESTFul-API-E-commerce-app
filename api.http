@@ -1,0 +1,485 @@
+##########################################
+# E-COMMERCE API TEST SUITE
+# First, get a token by running the "Login" requests below
+# Then copy the access token and replace {{token}} in other requests
+##########################################
+
+@baseUrl = http://localhost:8000
+@token = YOUR_ACCESS_TOKEN_HERE
+
+##########################################
+# AUTHENTICATION
+##########################################
+
+### Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/api/token/ HTTP/1.1
+Content-Type: application/json
+
+{
+	"username": "admin",
+	"password": "test"
+}
+
+### Login as Regular User (john_doe)
+# @name loginUser
+POST {{baseUrl}}/api/token/ HTTP/1.1
+Content-Type: application/json
+
+{
+	"username": "john_doe",
+	"password": "password123"
+}
+
+### Refresh Token
+POST {{baseUrl}}/api/token/refresh/ HTTP/1.1
+Content-Type: application/json
+
+{
+	"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyMDcyODQ3LCJpYXQiOjE3NjIwNzI1NDgsImp0aSI6IjZjMDM4MmQ5MWFiYjQwYzI4NTMwN2I5ZjYxYTFhNTc3IiwidXNlcl9pZCI6IjEifQ.uuwnHUIQOy22bBKwTF-zQyQdzCWslgjg9UoAmbyr8JA"
+}
+
+##########################################
+# PRODUCTS
+##########################################
+
+### Get All Products
+GET {{baseUrl}}/api/products/ HTTP/1.1
+
+### Get Products with Filters
+GET {{baseUrl}}/api/products/?category=electronics&min_price=50&max_price=500&ordering=-created_at HTTP/1.1
+
+### Search Products
+GET {{baseUrl}}/api/products/?search=laptop HTTP/1.1
+
+### Get Products In Stock Only
+GET {{baseUrl}}/api/products/?in_stock_only=true HTTP/1.1
+
+### Get Single Product
+GET {{baseUrl}}/api/products/1/ HTTP/1.1
+
+### Create Product (Admin Only)
+POST {{baseUrl}}/api/products/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "MacBook Pro M3",
+	"description": "Latest Apple laptop with M3 chip, 16GB RAM, 512GB SSD",
+	"price": "1999.99",
+	"stock": 25,
+	"category": 1,
+	"is_active": true
+}
+
+### Update Product (Admin Only)
+PUT {{baseUrl}}/api/products/1/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "MacBook Pro M3 - Updated",
+	"description": "Updated description with more details",
+	"price": "1899.99",
+	"stock": 30,
+	"category": 1,
+	"is_active": true
+}
+
+### Partial Update Product (Admin Only)
+PATCH {{baseUrl}}/api/products/1/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"price": "1799.99",
+	"stock": 35
+}
+
+### Delete Product (Admin Only)
+DELETE {{baseUrl}}/api/products/1/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Get Product Info/Statistics
+GET {{baseUrl}}/api/product/info/ HTTP/1.1
+
+##########################################
+# CATEGORIES
+##########################################
+
+### Get All Categories
+GET {{baseUrl}}/api/categories/ HTTP/1.1
+
+### Get Category by Slug
+GET {{baseUrl}}/api/categories/electronics/ HTTP/1.1
+
+### Create Category (Admin Only)
+POST {{baseUrl}}/api/categories/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "Smartphones",
+	"slug": "smartphones",
+	"description": "Mobile phones and accessories",
+	"parent": 1
+}
+
+### Update Category (Admin Only)
+PUT {{baseUrl}}/api/categories/smartphones/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "Smartphones & Tablets",
+	"slug": "smartphones",
+	"description": "Mobile phones, tablets, and accessories"
+}
+
+### Delete Category (Admin Only)
+DELETE {{baseUrl}}/api/categories/smartphones/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+##########################################
+# REVIEWS
+##########################################
+
+### Get All Reviews
+GET {{baseUrl}}/api/reviews/ HTTP/1.1
+
+### Get Reviews for Specific Product
+GET {{baseUrl}}/api/reviews/?product=1 HTTP/1.1
+
+### Get Reviews with Filters
+GET {{baseUrl}}/api/reviews/?product=1&rating=5&ordering=-created_at HTTP/1.1
+
+### Create Review (Authenticated)
+POST {{baseUrl}}/api/reviews/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1,
+	"rating": 5,
+	"title": "Excellent Product!",
+	"comment": "This product exceeded my expectations. The quality is outstanding and delivery was fast. Highly recommend!"
+}
+
+### Update Review (Own Review Only)
+PUT {{baseUrl}}/api/reviews/1/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1,
+	"rating": 4,
+	"title": "Great Product",
+	"comment": "Updated my review after a week of use. Still very satisfied!"
+}
+
+### Delete Review (Own Review Only)
+DELETE {{baseUrl}}/api/reviews/1/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+##########################################
+# SHOPPING CART
+##########################################
+
+### Get My Cart
+GET {{baseUrl}}/api/cart/me/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Add Item to Cart
+POST {{baseUrl}}/api/cart/add_item/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1,
+	"quantity": 2
+}
+
+### Add Another Item to Cart
+POST {{baseUrl}}/api/cart/add_item/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 3,
+	"quantity": 1
+}
+
+### Update Cart Item Quantity
+PUT {{baseUrl}}/api/cart/update_item/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1,
+	"quantity": 5
+}
+
+### Remove Item from Cart
+DELETE {{baseUrl}}/api/cart/remove_item/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1
+}
+
+### Clear Entire Cart
+DELETE {{baseUrl}}/api/cart/clear/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+##########################################
+# USER PROFILE
+##########################################
+
+### Get My Profile
+GET {{baseUrl}}/api/profiles/me/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Update Profile
+PUT {{baseUrl}}/api/profiles/me/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"phone_number": "+1234567890",
+	"shipping_address_line1": "123 Main Street",
+	"shipping_address_line2": "Apt 4B",
+	"shipping_city": "New York",
+	"shipping_state": "NY",
+	"shipping_postal_code": "10001",
+	"shipping_country": "USA",
+	"billing_address_line1": "123 Main Street",
+	"billing_address_line2": "Apt 4B",
+	"billing_city": "New York",
+	"billing_state": "NY",
+	"billing_postal_code": "10001",
+	"billing_country": "USA"
+}
+
+### Partial Update Profile
+PATCH {{baseUrl}}/api/profiles/me/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"phone_number": "+0987654321",
+	"shipping_city": "Los Angeles"
+}
+
+##########################################
+# ORDERS
+##########################################
+
+### Get All My Orders
+GET {{baseUrl}}/api/orders/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Get Orders with Filters
+GET {{baseUrl}}/api/orders/?status=Pending&ordering=-created_at HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Get Orders by Date Range
+GET {{baseUrl}}/api/orders/?created_after=2024-01-01&created_before=2024-12-31 HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Get Single Order
+GET {{baseUrl}}/api/orders/ORDER_ID_HERE/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Create Order (with shipping address)
+POST {{baseUrl}}/api/orders/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Pending",
+	"items": [
+		{
+			"product": 1,
+			"quantity": 2
+		},
+		{
+			"product": 3,
+			"quantity": 1
+		}
+	],
+	"shipping_address_line1": "456 Oak Avenue",
+	"shipping_address_line2": "Suite 100",
+	"shipping_city": "San Francisco",
+	"shipping_state": "CA",
+	"shipping_postal_code": "94102",
+	"shipping_country": "USA"
+}
+
+### Update Order
+PUT {{baseUrl}}/api/orders/ORDER_ID_HERE/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Pending",
+	"items": [
+		{
+			"product": 1,
+			"quantity": 3
+		}
+	],
+	"shipping_address_line1": "456 Oak Avenue",
+	"shipping_city": "San Francisco",
+	"shipping_state": "CA",
+	"shipping_postal_code": "94102",
+	"shipping_country": "USA"
+}
+
+### Update Order Status (Admin Only)
+POST {{baseUrl}}/api/orders/ORDER_ID_HERE/update_status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Confirmed"
+}
+
+### Update Order Status to Shipped (Admin Only - Generates Tracking Number)
+POST {{baseUrl}}/api/orders/ORDER_ID_HERE/update_status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Shipped"
+}
+
+### Update Order Status to Delivered (Admin Only - Deducts Stock)
+POST {{baseUrl}}/api/orders/ORDER_ID_HERE/update_status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Delivered"
+}
+
+### Cancel Order (Returns Reserved Stock)
+POST {{baseUrl}}/api/orders/ORDER_ID_HERE/update_status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Cancelled"
+}
+
+### Delete Order
+DELETE {{baseUrl}}/api/orders/ORDER_ID_HERE/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+##########################################
+# USERS (Admin Only)
+##########################################
+
+### Get All Users (Admin Only)
+GET {{baseUrl}}/api/users/ HTTP/1.1
+Authorization: Bearer {{token}}
+
+##########################################
+# TESTING SCENARIOS
+##########################################
+
+### Scenario 1: Complete Shopping Flow
+# 1. Login as user
+# 2. Browse products: GET /api/products/
+# 3. View product details: GET /api/products/1/
+# 4. Read reviews: GET /api/reviews/?product=1
+# 5. Add to cart: POST /api/cart/add_item/
+# 6. View cart: GET /api/cart/me/
+# 7. Update profile with shipping address: PUT /api/profiles/me/
+# 8. Create order: POST /api/orders/
+# 9. Check order status: GET /api/orders/
+
+### Scenario 2: Test Stock Management
+# 1. Check product stock: GET /api/products/1/
+# 2. Create order with items: POST /api/orders/
+# 3. Verify stock is reserved (check available_stock)
+# 4. Cancel order: POST /api/orders/{id}/update_status/ with "Cancelled"
+# 5. Verify stock is returned
+
+### Scenario 3: Test Review System
+# 1. Login as user
+# 2. Create review: POST /api/reviews/
+# 3. Try to create duplicate review (should fail)
+# 4. Update your review: PUT /api/reviews/{id}/
+# 5. Check product average rating: GET /api/products/1/
+
+### Scenario 4: Test Order Status Workflow
+# 1. Create order (Pending)
+# 2. Admin confirms: POST /api/orders/{id}/update_status/ -> "Confirmed"
+# 3. Admin processes: POST /api/orders/{id}/update_status/ -> "Processing"
+# 4. Admin ships: POST /api/orders/{id}/update_status/ -> "Shipped" (tracking number generated)
+# 5. Admin delivers: POST /api/orders/{id}/update_status/ -> "Delivered" (stock deducted)
+
+### Scenario 5: Test Invalid Status Transitions
+# Try to skip status: Pending -> Shipped (should fail)
+POST {{baseUrl}}/api/orders/ORDER_ID_HERE/update_status/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Shipped"
+}
+
+##########################################
+# ERROR TESTING
+##########################################
+
+### Test: Order with insufficient stock
+POST {{baseUrl}}/api/orders/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"status": "Pending",
+	"items": [
+		{
+			"product": 1,
+			"quantity": 9999
+		}
+	],
+	"shipping_address_line1": "Test Address",
+	"shipping_city": "Test City",
+	"shipping_state": "Test State",
+	"shipping_postal_code": "00000",
+	"shipping_country": "Test Country"
+}
+
+### Test: Unauthorized access (no token)
+GET {{baseUrl}}/api/orders/ HTTP/1.1
+
+### Test: Create product without admin rights
+POST {{baseUrl}}/api/products/ HTTP/1.1
+Content-Type: application/json
+
+{
+	"name": "Test Product",
+	"description": "This should fail",
+	"price": "99.99",
+	"stock": 10
+}
+
+### Test: Invalid rating (should fail)
+POST {{baseUrl}}/api/reviews/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"product": 1,
+	"rating": 10,
+	"title": "Invalid Rating",
+	"comment": "Rating should be 1-5"
+}
+
+##########################################
+# END OF TEST SUITE
+##########################################
